@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+    <h2>Admin Dashboard</h2>
+
+    <!-- Search Bar for Professionals -->
+    <form class="form-inline my-2 my-lg-0" action="{{ url_for('main.search') }}" method="POST">
+        <input class="form-control mr-sm-2" type="search" placeholder="Search by Professional Name" aria-label="Search" name="search_query" required>
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>
+
+    <!-- Manage Services Button -->
+    <div class="mb-4">
+        <a href="{{ url_for('main.services') }}" class="btn btn-primary">Manage Services</a>
+    </div>
+
+    <h3>Professional Requests</h3>
+    <div class="row">
+        {% for request in professional_requests %}
+        {% if request.service_type in services %}
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ request.name }}</h5>
+                        <p class="card-text">
+                            <strong>Service Type:</strong> {{ request.service_type }}<br>
+                            <strong>Experience:</strong> {{ request.experience }} years<br>
+                            <strong>Description:</strong> {{ request.description }}<br>
+                            <strong>Documentation:</strong> <a href="{{ request.doc_url }}" target="_blank">{{ request.doc_url }}</a>
+                        </p>
+
+                        <!-- Form to update approval status -->
+                        <form method="POST" action="{{ url_for('main.update_approval_status') }}">
+                            <input type="hidden" name="request_id" value="{{ request.id }}">
+                            <div class="form-group">
+                                <label for="approval-status-{{ request.id }}">Approval Status:</label>
+                                <select class="form-control" name="is_approved" id="approval-status-{{ request.id }}" onchange="this.form.submit()">
+                                    <option value="pending" {% if request.is_approved is not none and request.is_approved == false %}selected{% endif %}>Not Approved</option>
+                                    <option value="approved" {% if request.is_approved is not none and request.is_approved == true %}selected{% endif %}>Approved</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% endfor %}
+        {% if not professional_requests %}
+            <div class="col-md-12">
+                <div class="alert alert-info">No professional requests to approve.</div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Button for Approved Professionals -->
+    <div class="mb-4">
+        <a href="{{ url_for('main.all_approved_professionals') }}" class="btn btn-success">View Approved Professionals</a>
+    </div>
+
+    <!-- Button for All Customers -->
+    <div class="mb-4">
+        <a href="{{ url_for('main.all_customers') }}" class="btn btn-info">View All Customers</a>
+    </div>
+    <h3>Blocked Users</h3>
+    <div class="row">
+        {% for user in blocked_users %}
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">{{ user.name }}</h5>
+                    <p class="card-text">
+                        <strong>User Type:</strong> {{ user.role }}<br>
+                        <strong>Email:</strong> {{ user.email }}<br>
+                    </p>
+
+                    <!-- Form to unblock user -->
+                    <form method="POST" action="{{ url_for('main.unblock_user') }}">
+                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                        <button type="submit" class="btn btn-warning">Unblock</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% if not blocked_users %}
+            <div class="col-md-12">
+                <div class="alert alert-info">No blocked users.</div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

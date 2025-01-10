@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Service Professional Dashboard{% endblock %}
+{% block content %}
+    <h2>Service Professional Dashboard</h2>
+    <h3>Your Profile is Complete</h3>
+    {% for professional, user in users %}
+        <p>You are registered under: {{ professional.service_type }}</p>
+        {% if not user.is_active %}
+            <p> You were removed by the admin</p>
+        {% else %}
+            {% if professional.service_type not in services %}
+                <p>The service you were registered for no longer exists.</p>
+            {% else %}
+                {% if not professional.is_approved%}
+                    <p>You are not approved to take requests yet.</p>
+                {% else %}
+                    <a href="{{ url_for('main.service_requests') }}" class="btn btn-success">Service Requests</a>
+                {% endif %}
+            {% endif %}
+        {%endif%}
+    {%endfor%}
+{% endblock %}

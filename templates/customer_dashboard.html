@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Customer Dashboard{% endblock %}
+{% block content %}
+
+    <h2>Customer Dashboard</h2>
+{%if user.is_active %}
+    <h3>Available Services</h3>
+    <form id="serviceForm" method="POST" action="{{ url_for('main.customer_dashboard') }}">
+        <div class="form-group">
+            <label for="service">Select Service</label>
+            <select class="form-control" id="service" name="service_id" onchange="this.form.submit()">
+                <option value=None>Select a service</option>
+                {% for service in services %}
+                    <option value="{{ service.id }}" {% if selected_service_id == service.id %}selected{% endif %}>
+                        {{ service.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+
+    <h3>Approved Professionals</h3>
+    <div class="row">
+        {%if professionals%}
+            {% for professional in professionals %}
+            
+                <div class="card col-md-3">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ professional.name }}</h5>
+                        <p class="card-text">Service Type: {{ professional.service_type }}</p>
+                        <p class="card-text">Experience: {{ professional.experience }} years</p>
+                        <p class="card-text">Approved: {{ professional.is_approved }}</p>
+        
+                        <!-- Button to book a service -->
+                        <form method="POST" action="{{ url_for('main.book_service', professional_id=professional.id) }}">
+                            <!-- Add a hidden field for service_id -->
+                            <input type="hidden" name="service_id" value="{{ request.form.get('service_id') }}">
+                            <button type="submit" class="btn btn-success">Book Service</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        {%else%}
+        <div class="col-md-12">
+            <div class="alert alert-info">No approved professionals.</div>
+        </div>
+        {%endif%}
+    
+    </div>
+
+    <h3><a href="{{ url_for('main.requests') }}">Your Service Request History</a></h3>
+
+
+    <h3><a href="{{ url_for('main.past_reviews') }}">Your Reviews</a></h3>
+{%else%}
+    <p> You were removed by the admin</p>
+{%endif%}
+{% endblock %}
